@@ -1,0 +1,317 @@
+<!--
+title: ESP32 Pinout
+description: 
+published: true
+date: 2024-08-21T10:24:10.071Z
+tags: 
+editor: ckeditor
+dateCreated: 2024-07-27T09:17:32.460Z
+-->
+
+<h1>&nbsp;</h1>
+<p>The ESP32 chip comes with 48 pins with multiple functions. Not all pins are exposed in all ESP32 development boards, and there are some pins that cannot be used. There are many questions on how to use the ESP32 GPIO’s. What pins should you use? What pins should you avoid using in your projects? This blog is a simple and easy to follow reference guide for the ESP32 GPIO’s.</p>
+<h2>ESP-WROOM-32 CHIP PINOUT</h2>
+<p>The following figure illustrates the ESP-WROOM-32 chip pinout. Use this diagram if you’re using an ESP32 bare chip in your projects. On the bottom of this blog, you can download the PDF with the ESP32 – PinOut!<br>&nbsp;</p>
+<figure class="image"><img src="/esp32_pinout.jpg" alt="esp32_pinout.jpg"></figure>
+<p>Note: not all GPIO’s are accessible in all development boards, but each specific GPIO works in the same way regardless of the development board you’re using. If you’re just getting started with the ESP32, we recommend reading our blog: Getting Started with the ESP32 Development Board.<br>At the moment, there are a wide variety of development boards with the ESP8266 chip that differ in the number of accessible GPIO’s, size, form factor, etc…</p>
+<h2>ESP-WROOM-32 30 PIN Develeopment Board PINOUT</h2>
+<p>If you’re using an ESP32 30 pin Development board, you can use the following GPIO diagram as a reference. ESP32 30 pin Development board pinout diagram GPIO’s pins.</p>
+<figure class="image"><img src="/esp32_30pins.jpg" alt="esp32_30pins.jpg"></figure>
+<p><i>Note: There are several Development boards like a 36 pin development board and a ESP32-Pico-Kit and several others. I don’t treat them all here, but you van use the pin definitions here as reference.</i></p>
+<h2>ESP-WROOM-32 38 PIN Development Board PINOUT</h2>
+<figure class="image"><img src="/esp32_38pins.jpg.png" alt="esp32_38pins.jpg.png"></figure>
+<p><br>If you’re using an ESP32 30 pin Development board, you can use the following GPIO diagram as a reference. ESP32 30 pin Development board pinout diagram GPIO’s pins.</p>
+<h2>ESP32 Peripherals</h2>
+<p>The ESP32 peripherals include:<br>18 Analog-to-Digital Converter (ADC) channels<br>• 3 SPI interfaces<br>• 3 UART interfaces<br>• 2 I2C interfaces<br>• 16 PWM output channels<br>• 2 Digital-to-Analog Converters (DAC)<br>• 2 I2S interfaces<br>• 10 Capacitive sensing GPIO’s<br>The ADC (Analogue to Digital Converter) and DAC (Digital to Analogue Converter) features are assigned to specific static pins. However, you can decide which pins are UART, I2C, SPI, PWM, etc – you just need to assign them in the code. This is possible due to the ESP32 chip’s multiplexing feature.</p>
+<h2>BEST PINS TO USE – ESP32</h2>
+<p>Additionally, there are pins with specific features that make them suitable or not for a specific project. The following table shows what pins are best to use as inputs, outputs and which ones you need to be cautious.</p>
+<p><i>### The pins highlighted in green are OK to use. The ones highlighted in yellow are OK to use, but you need to pay attention because they may have unexpected behaviour, mainly at boot. The pins highlighted in red are not recommended to use as inputs or outputs.</i></p>
+<figure class="table">
+  <table>
+    <tbody>
+      <tr>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>GPIO</strong></td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>Input</strong></td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>Output</strong></td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>Notes</strong></td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">0</td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>pulled up</strong></td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>OK</strong></td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">outputs PWM signal at boot</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">1</td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>TX Pin</strong></td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>OK</strong></td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">debug output at boot</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">2</td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>OK</strong></td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>OK</strong></td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">connected to on-board LED</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">3</td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>OK</strong></td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>RX Pin</strong></td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">HIGH at boot</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">4</td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>OK</strong></td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>OK</strong></td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">5</td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>OK</strong></td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>OK</strong></td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">outputs PWM signal at boot</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">6</td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>X</strong></td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>X</strong></td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">connected to the integrated SPI flash</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">7</td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>X</strong></td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>X</strong></td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">connected to the integrated SPI flash</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">8</td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>X</strong></td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>X</strong></td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">connected to the integrated SPI flash&nbsp;connected to the integrated SPI flash</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">9</td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>X</strong></td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>X</strong></td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">connected to the integrated SPI flash</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">10</td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>X</strong></td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>X</strong></td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">connected to the integrated SPI flash</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">11</td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>X</strong></td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>X</strong></td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">connected to the integrated SPI flash</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">12</td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>OK</strong></td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>OK</strong></td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">13</td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>OK</strong></td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>OK</strong></td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">outputs PWM signal at boot</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">14</td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>OK</strong></td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>OK</strong></td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">outputs PWM signal at boot</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">15</td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>OK</strong></td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>OK</strong></td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">16</td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>OK</strong></td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>OK</strong></td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">17</td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>OK</strong></td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>OK</strong></td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">18</td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>OK</strong></td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>OK</strong></td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">19</td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>OK</strong></td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>OK</strong></td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">20</td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>OK</strong></td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>OK</strong></td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">21</td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>OK</strong></td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>OK</strong></td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">22</td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>OK</strong></td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>OK</strong></td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">23</td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>OK</strong></td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>OK</strong></td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">24</td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>OK</strong></td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>OK</strong></td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">25</td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>OK</strong></td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>OK</strong></td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">26</td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>OK</strong></td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>OK</strong></td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">27</td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>OK</strong></td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>OK</strong></td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">28</td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>OK</strong></td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>OK</strong></td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">29</td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>OK</strong></td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>OK</strong></td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">30</td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>OK</strong></td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>OK</strong></td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">31</td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>OK</strong></td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>OK</strong></td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">32</td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>OK</strong></td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>OK</strong></td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">33</td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>OK</strong></td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>OK</strong></td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">34</td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>OK</strong></td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">&nbsp;</td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">35</td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>OK</strong></td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">&nbsp;</td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">36</td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>OK</strong></td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">&nbsp;</td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>input only</strong></td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">37</td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>OK</strong></td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">&nbsp;</td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>input only</strong></td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">38</td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>OK</strong></td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">&nbsp;</td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>input only</strong></td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">39</td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>OK</strong></td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;">&nbsp;</td>
+        <td style="border-bottom:1px solid #000000;border-left:1px solid #000000;border-right:1px solid #000000;border-top:1px solid #000000;padding:0.08in;"><strong>input only</strong></td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+<h2>Input only pins</h2>
+<p>GPIO’s 34 to 39 are GPI’s – input only pins. These pins don’t have internal pull-ups or pull-down resistors. They can’t be used as outputs, so use these pins only as inputs:<br>• GPIO 34<br>• GPIO 35<br>• GPIO 36<br>• GPIO 39</p>
+<h2>SPI flash integrated on the ESP-WROOM-32</h2>
+<p>GPIO 6 – GPIO 11 are exposed in some ESP32 development boards. However, these pins are connected to the integrated SPI flash on the ESP-WROOM-32 chip and are not recommended for other uses. So, don’t use these pins in your projects!</p>
+<p>• GPIO 6 (SCK/CLK)<br>• GPIO 7 (SDO/SD0)<br>• GPIO 8 (SDI/SD1)<br>• GPIO 9 (SHD/SD2)<br>• GPIO 10 (SWP/SD3)<br>• GPIO 11 (CSC/CMD)<br>•</p>
+<h2>Capacitive touch GPIO’s</h2>
+<p>The ESP32 has 10 internal capacitive touch sensors. These can sense variations in anything that holds an electrical charge, like the human skin. So they can detect variations induced when touching the GPIO’s with a finger. These pins can be easily integrated into capacitive pads, and replace mechanical buttons. The capacitive touch pins can also be used to wake up the ESP32 from deep sleep.</p>
+<p>Those internal touch sensors are connected to these GPIO’s.<br>• T0 (GPIO 4)<br>• T1 (GPIO 0)<br>• T2 (GPIO 2)<br>• T3 (GPIO 15)<br>• T4 (GPIO 13)<br>• T5 (GPIO 12)<br>• T6 (GPIO 14)<br>• T7 (GPIO 27)<br>• T8 (GPIO 33)<br>• T9 (GPIO 32)</p>
+<h2>Analogue to Digital Converter (ADC)</h2>
+<p>The ESP32 has 18 × 12 bits ADC input channels (while the ESP8266 only has 1x 10 bits ADC). These are the GPIO’s that can be used as ADC and respective channels.<br>• ADC1_CH0 (GPIO 36)<br>• ADC1_CH1 (GPIO 37)<br>• ADC1_CH2 (GPIO 38)<br>• ADC1_CH3 (GPIO 39)<br>• ADC1_CH4 (GPIO 32)<br>• ADC1_CH5 (GPIO 33)<br>• ADC1_CH6 (GPIO 34)<br>• ADC1_CH7 (GPIO 35)<br>• ADC2_CH0 (GPIO 4)<br>• ADC2_CH1 (GPIO 0)<br>• ADC2_CH2 (GPIO 2)<br>• ADC2_CH3 (GPIO 15)<br>• ADC2_CH4 (GPIO 13)<br>• ADC2_CH5 (GPIO 12)<br>• ADC2_CH6 (GPIO 14)<br>• ADC2_CH7 (GPIO 27)<br>• ADC2_CH8 (GPIO 25)<br>• ADC2_CH9 (GPIO 26)</p>
+<h2>How to use the ESP32 ADC pins</h2>
+<p>Note: ADC2 pins cannot be used when Wi-Fi is used. So, if you’re using Wi-Fi, and you’re having trouble getting the value from an ADC2 GPIO, you may consider using an ADC1 GPIO instead, that should solve your problem.<br>The ADC input channels have a 12 bit resolution. This means that you can get analogue readings ranging from 0 to 4095, in which 0 corresponds to 0V and 4095 to 3.3V. You also have the ability to set the resolution of your channels on the code, as well as the ADC range.<br>The ESP32 ADC pins don’t have a linear behaviour. You probably won’t be able to distinguish between 0 and 0.1V, or between 3.2 and 3.3V. You need to keep that in mind when using the ADC pins.</p>
+<h2>Digital to Analog Converter (DAC)</h2>
+<p>There are 2 × 8 bits DAC channels on the ESP32 to convert digital signals into analogue voltage signal outputs. These are the DAC channels.<br>• DAC1 (GPIO25)<br>• DAC2 (GPIO26)</p>
+<h2>RTC GPIOs</h2>
+<p>There is RTC GPIO support on the ESP32. The GPIO’s routed to the RTC low-power subsystem can be used when the ESP32 is in deep sleep. These RTC GPIO’s can be used to wake up the ESP32 from deep sleep when the Ultra Low Power (ULP) co-processor is running. The following GPIO’s can be used as an external wake-up source.</p>
+<p>• RTC_GPIO0 (GPIO36)<br>• RTC_GPIO3 (GPIO39)<br>• RTC_GPIO4 (GPIO34)<br>• RTC_GPIO5 (GPIO35)<br>• RTC_GPIO6 (GPIO25)<br>• RTC_GPIO7 (GPIO26)<br>• RTC_GPIO8 (GPIO33)<br>• RTC_GPIO9 (GPIO32)<br>• RTC_GPIO10 (GPIO4)<br>• RTC_GPIO11 (GPIO0)<br>• RTC_GPIO12 (GPIO2)<br>• RTC_GPIO13 (GPIO15)<br>• RTC_GPIO14 (GPIO13)<br>• RTC_GPIO15 (GPIO12)<br>• RTC_GPIO16 (GPIO14)<br>• RTC_GPIO17 (GPIO27)</p>
+<h2>PWM</h2>
+<p>The ESP32 LED PWM controller has 16 independent channels that can be configured to generate PWM signals with different properties. All pins that can act as outputs can be used as PWM pins (GPIO’s 34 to 39 can’t generate PWM).<br>To set a PWM signal, you need to define these parameters in the code:<br>• Signal’s frequency;<br>• Duty cycle;<br>• PWM channel;<br>• GPIO where you want to output the signal.</p>
+<h2>I2C</h2>
+<p>The ESP32 has two I2C channels and any pin can be set as SDA or SCL. The default I2C pins are.<br>• GPIO 21 (SDA)<br>• GPIO 22 (SCL)</p>
+<h2>SPI</h2>
+<p>By default, the pin mapping for SPI is:<br>SPI MOSI MISO CLK CS<br>VSPI GPIO 23 GPIO 19 GPIO 18 GPIO 5<br>HSPI GPIO 13 GPIO 12 GPIO 14 GPIO 15</p>
+<h2>Interrupts</h2>
+<p>All GPIO’s can be configured as interrupts.</p>
+<h2>Strapping Pins</h2>
+<p>The ESP32 chip has the following strapping pins:</p>
+<p>• GPIO 0<br>• GPIO 2<br>• GPIO 4<br>• GPIO 5 (must be HIGH during boot)<br>• GPIO 12 (must be LOW during boot)<br>• GPIO 15 (must be HIGH during boot)</p>
+<p>These are used to put the ESP32 into bootloader or flashing mode. On most development boards with built-in USB/Serial, you don’t need to worry about the state of these pins. The board puts the pins in the right state for flashing or boot mode.</p>
+<p><i>However, if you have peripherals connected to those pins, you may have trouble trying to upload new code, flashing the ESP32 with new firmware or resetting the board. If you have some peripherals connected to the strapping pins, and you are getting trouble uploading code or flashing the ESP32, it may be because those peripherals are preventing the ESP32 to enter the right mode. After resetting, flashing, or booting, those pins work as expected.</i></p>
+<h2>Pins HIGH at Boot</h2>
+<p>Some GPIO’s change its state to HIGH or output PWM signals at boot or reset. This means that if you have outputs connected to these GPIO’s you may get unexpected results when the ESP32 resets or boots.</p>
+<p>• GPIO 1<br>• GPIO 3<br>• GPIO 5<br>• GPIO 6 to GPIO 11 ~(connected to the ESP32 integrated SPI flash memory – not recommended to use).~<br>• GPIO 14<br>• GPIO 15</p>
+<h2>Enable (EN)</h2>
+<p>Enable (EN) is the 3.3V regulators enable pin. It’s pulled up, so connect to ground to disable the 3.3V regulator. This means that you can use this pin connected to a push button to restart your ESP32, for example.</p>
+<h2>GPIO current drawn</h2>
+<p>The absolute maximum current drawn per GPIO is 40mA according to the “Recommended Operating Conditions” section in the ESP32 datasheet.</p>
