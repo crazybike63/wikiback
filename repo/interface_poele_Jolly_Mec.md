@@ -2,7 +2,7 @@
 title: modification du poele Jolly Mec
 description: 
 published: true
-date: 2024-11-21T14:33:16.337Z
+date: 2024-11-21T14:34:31.452Z
 tags: 
 editor: markdown
 dateCreated: 2024-11-21T14:33:16.337Z
@@ -17,7 +17,6 @@ dateCreated: 2024-11-21T14:33:16.337Z
 
 ![img_9282.jpg](/jolly_mec/img_9282.jpg)
 
-![img_9280.jpg](/jolly_mec/img_9280.jpg)
 
 ### Les leds emetrices sont cablées en serie. Les leds infrarouges et les photos transistors sont installés sur des supports imprimés en Abs et protégés par des vitres circulaires en polycarbonate
 
