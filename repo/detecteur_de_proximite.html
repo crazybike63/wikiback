@@ -2,7 +2,7 @@
 title: schemas detecteur de proximité
 description: 
 published: true
-date: 2024-12-11T20:07:20.958Z
+date: 2024-12-12T06:40:13.872Z
 tags: 
 editor: ckeditor
 dateCreated: 2024-12-11T20:07:20.958Z
@@ -12,13 +12,10 @@ dateCreated: 2024-12-11T20:07:20.958Z
 <p>&nbsp;</p>
 <p>&nbsp;</p>
 <h1>Détails :</h1>
-<p><strong>3.3V Alimentation</strong> :</p>
-<ul>
-  <li>Alimente la LED infrarouge via une résistance de 100Ω et le phototransistor via un pull-up de 10kΩ.</li>
-</ul>
+<p><strong>Alimentation</strong> : <strong>3.3V</strong></p>
 <p><strong>LED Infrarouge</strong> :</p>
 <ul>
-  <li>Contrôlée par le transistor <strong>MMBT2222A</strong>, qui agit comme un interrupteur électronique.</li>
+  <li>Contrôlée par le transistor <strong>MMBT2222A</strong>, alimente la LED infrarouge via une résistance de 100Ω et le phototransistor via un pull-up de 10kΩ.</li>
 </ul>
 <p><strong>Transistor MMBT2222A</strong> :</p>
 <ul>
@@ -32,3 +29,166 @@ dateCreated: 2024-12-11T20:07:20.958Z
 <ul>
   <li>La sortie du phototransistor peut être connectée à une entrée de l'ESP32 pour traitement.</li>
 </ul>
+<h3>&nbsp;</h3>
+<h1><strong>&nbsp;Analyse des exigences</strong></h1>
+<p><strong>Distance de détection (~10 cm)</strong> :</p>
+<ul>
+  <li>Le phototransistor (<strong>TEFT4300</strong>) et la LED infrarouge (<strong>D1</strong>) doivent être correctement orientés pour détecter la réflexion de la lumière infrarouge sur votre main.</li>
+  <li>Une isolation optique (par exemple, un tube ou un cache noir) est essentielle pour éviter les interférences directes entre la LED et le phototransistor.</li>
+</ul>
+<p><strong>Commutation sans rebond</strong> :</p>
+<ul>
+  <li>Le comparateur <strong>LM311</strong> agit comme un déclencheur rapide et élimine naturellement la plupart des fluctuations mineures du signal.</li>
+  <li>Le condensateur <strong>C8 (100 nF)</strong> sur l'entrée non-inverseuse aide également à lisser le signal provenant du phototransistor.</li>
+  <li>Si un rebond persiste, on peut ajouter un hystérésis au comparateur pour améliorer la stabilité.</li>
+</ul>
+<hr>
+<h1><strong>Ajout d'un hystérésis au LM311</strong></h1>
+<p>L'hystérésis ajoute une zone morte autour du seuil de commutation pour éviter les basculements intempestifs lorsque le signal est proche du seuil.</p>
+<h4><strong>Modification simple avec une résistance d’hystérésis :</strong></h4>
+<ul>
+  <li>Ajoutez une résistance RhR_hRh​ entre la sortie du LM311 (broche 7) et l'entrée inverseuse (broche 2).</li>
+  <li>Valeur typique pour RhR_hRh​ : <strong>100 kΩ à 1 MΩ</strong>.</li>
+</ul>
+<p><strong>Principe :</strong></p>
+<ul>
+  <li>Quand la sortie est <strong>haute</strong>, la tension sur l'entrée inverseuse est légèrement augmentée.</li>
+  <li>Quand la sortie est <strong>basse</strong>, la tension sur l'entrée inverseuse est légèrement réduite.</li>
+  <li>Cela crée deux seuils : un pour basculer haut et un autre pour basculer bas.</li>
+</ul>
+<p><strong>Avantage</strong> : Cela évite les oscillations lorsque le signal réfléchi est proche du seuil de détection.</p>
+<hr>
+<h1><strong>Réglage de la distance de détection (~10 cm)</strong></h1>
+<p>La distance dépend de plusieurs facteurs :</p>
+<p><strong>Puissance de la LED IR</strong> :</p>
+<ul>
+  <li>La LED <strong>Wurth Elektronik 15400394F3590</strong> émet 30 mW/Sr à 15°. Cela est suffisant pour une détection à 10 cm avec une bonne réflexion sur la main.</li>
+  <li>Si nécessaire, vous pouvez augmenter légèrement le courant de la LED en diminuant <strong>R5</strong> (par exemple à 82Ω), tout en restant sous le courant maximal de la LED (environ 20-25 mA).</li>
+</ul>
+<p><strong>Sensibilité du phototransistor</strong> :</p>
+<ul>
+  <li>Assurez-vous que le phototransistor capte bien la lumière réfléchie à 10 cm.</li>
+  <li>Si le signal est trop faible, envisagez de réduire <strong>R6</strong> (par exemple, à 4.7 kΩ) pour augmenter le courant collecteur du phototransistor.</li>
+</ul>
+<p><strong>Angle et isolation</strong> :</p>
+<ul>
+  <li>Orientez correctement la LED et le phototransistor pour maximiser la réflexion infrarouge.</li>
+  <li>Ajoutez un tube noir (ou un matériau opaque) pour isoler optiquement les deux composants.</li>
+</ul>
+<hr>
+<h1><strong>Condensateurs pour stabilisation</strong></h1>
+<p>Vos condensateurs sont bien choisis, mais voici quelques ajustements possibles :</p>
+<ul>
+  <li><strong>C8 (100 nF)</strong> sur le phototransistor :<ul>
+      <li>Si des perturbations subsistent, augmentez à <strong>1 µF</strong>.</li>
+    </ul>
+  </li>
+  <li><strong>C7 (100 nF)</strong> sur la LED :<ul>
+      <li>Si des perturbations ou des pics de courant sont observés, cette valeur est suffisante.</li>
+    </ul>
+  </li>
+</ul>
+<hr>
+<h1><strong>Test et calibration</strong></h1>
+<p><strong>Réglage du seuil</strong> :</p>
+<ul>
+  <li>Le diviseur de tension R11R11R11 et R12R12R12 fixe le seuil du LM311. Avec R11=R12=10kΩR11 = R12 = 10 kΩR11=R12=10kΩ, le seuil est de <strong>1.65V</strong>.</li>
+  <li>Testez le fonctionnement et ajustez si nécessaire :<ul>
+      <li><strong>Augmentez R12</strong> pour un seuil plus bas (plus sensible).</li>
+      <li><strong>Réduisez R12</strong> pour un seuil plus haut (moins sensible).</li>
+    </ul>
+  </li>
+</ul>
+<p><strong>Vérification de la sortie sans rebond</strong> :</p>
+<ul>
+  <li>Testez avec l'hystérésis (résistance RhR_hRh​) si des oscillations persistent.</li>
+</ul>
+<p><strong>Détection effective</strong> :</p>
+<ul>
+  <li>Placez votre main à 10 cm et testez la réponse.</li>
+  <li>Si la distance de détection est insuffisante, ajustez :<ul>
+      <li>La puissance de la LED (via R5).</li>
+      <li>La sensibilité du phototransistor (via R6).</li>
+    </ul>
+  </li>
+</ul>
+<h3>&nbsp;</h3>
+<h2><strong>1. Ajout d'hystérésis (R3 - 500 kΩ)</strong></h2>
+<ul>
+  <li>La résistance R3R3R3 entre la sortie (broche 7) et l'entrée inverseuse (broche 2) introduit un hystérésis au comparateur.</li>
+  <li>Cela crée deux seuils :<ul>
+      <li>Un seuil pour la transition <strong>basse → haute</strong>.</li>
+      <li>Un seuil pour la transition <strong>haute → basse</strong>.</li>
+    </ul>
+  </li>
+  <li><strong>Avantage</strong> : Cela améliore considérablement la stabilité et élimine les commutations intempestives lorsque le signal est proche du seuil.</li>
+</ul>
+<p><strong>Valeur choisie :</strong> 500 kΩ est une valeur appropriée pour ajouter un hystérésis modéré sans trop perturber le fonctionnement du circuit.</p>
+<hr>
+<h2><strong>2. Contrôle de la LED infrarouge</strong></h2>
+<ul>
+  <li><strong>R5 (100Ω)</strong> : Limite correctement le courant à environ 20 mA.</li>
+  <li><strong>Transistor Q3 (MMBT2222A)</strong> : Configure parfaitement pour activer la LED IR via le GPIO de l'ESP32.</li>
+  <li><strong>C7 (100 nF)</strong> : Filtre bien les perturbations dans l'alimentation de la LED. Cette valeur est adéquate.</li>
+</ul>
+<hr>
+<h2><strong>3. Phototransistor (TEFT4300 - Q4)</strong></h2>
+<ul>
+  <li><strong>R6 (10 kΩ)</strong> : Pull-up approprié pour maintenir un signal logique haut lorsque le phototransistor ne détecte pas de lumière.</li>
+  <li><strong>C8 (100 nF)</strong> : Filtre les parasites sur le signal du phototransistor. Cela réduit les variations rapides dues au bruit, rendant le circuit plus stable.</li>
+</ul>
+<hr>
+<h2><strong>4. LM311 Comparateur</strong></h2>
+<ul>
+  <li><strong>Alimentation :</strong>
+    <ul>
+      <li>Broche <strong>8</strong> : Reliée au +3.3V.</li>
+      <li>Broches <strong>1 et 4</strong> : Reliées à la masse.</li>
+    </ul>
+  </li>
+  <li><strong>Entrées :</strong>
+    <ul>
+      <li><strong>Broche 3 (non-inverseuse)</strong> : Signal provenant du phototransistor via <strong>R6</strong> et <strong>C8</strong>.</li>
+      <li><strong>Broche 2 (inverseuse)</strong> : Seuil fixé par le diviseur de tension R11R11R11 et R12R12R12, ajusté dynamiquement par R3R3R3 grâce à l'hystérésis.</li>
+    </ul>
+  </li>
+</ul>
+<p><strong>Diviseur de tension :</strong></p>
+<ul>
+  <li>Avec R11=R12=10kΩR11 = R12 = 10 kΩR11=R12=10kΩ, le seuil statique est de <strong>1.65V</strong>.</li>
+  <li>L’hystérésis modifie dynamiquement ce seuil en fonction de l’état de la sortie :<ul>
+      <li>Lorsque la sortie est haute, R3R3R3 augmente légèrement la tension sur la broche 2.</li>
+      <li>Lorsque la sortie est basse, R3R3R3 réduit légèrement la tension sur la broche 2.</li>
+    </ul>
+  </li>
+</ul>
+<p><strong>Sortie (broche 7) :</strong></p>
+<ul>
+  <li>La résistance <strong>R7 (10 kΩ)</strong> agit comme un pull-up pour générer un niveau logique propre, ce qui est parfait pour une entrée GPIO de l’ESP32.</li>
+</ul>
+<hr>
+<h2><strong>5. Stabilité et filtrage</strong></h2>
+<ul>
+  <li><strong>C7 et C8 (100 nF chacun)</strong> :<ul>
+      <li>Ces condensateurs filtrent efficacement les bruits électriques et les parasites.</li>
+      <li>Ils assurent un fonctionnement stable du circuit.</li>
+    </ul>
+  </li>
+</ul>
+<hr>
+<h2><strong>6. Résumé des améliorations</strong></h2>
+<ol>
+  <li><strong>Hystérésis (R3 - 500 kΩ)</strong> :<ul>
+      <li>Assure une commutation sans rebond, idéale pour détecter des objets à 10 cm.</li>
+      <li>Améliore la fiabilité globale du circuit.</li>
+    </ul>
+  </li>
+  <li><strong>Filtrage (C7 et C8)</strong> :<ul>
+      <li>Réduit les interférences électriques.</li>
+    </ul>
+  </li>
+  <li><strong>Seuil ajusté (R11 et R12)</strong> :<ul>
+      <li>Bien calibré pour un fonctionnement optimal avec la LED IR et le phototransistor.</li>
+    </ul>
+  </li>
+</ol>
