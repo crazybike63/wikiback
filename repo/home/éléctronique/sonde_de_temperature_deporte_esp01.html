@@ -2,7 +2,7 @@
 title: Sondes de température pour ballon d'eau chaude à base de DS18B20
 description: 
 published: true
-date: 2025-02-25T16:32:55.124Z
+date: 2025-02-25T16:36:18.410Z
 tags: 
 editor: ckeditor
 dateCreated: 2024-09-11T05:55:56.719Z
@@ -62,8 +62,10 @@ Petit montage autour d'un ESP8266 et de 3 DS18B20:</code></pre>
 </figure>
 <h1>Page web:</h1>
 <figure class="image"><img src="/sondes_températures_ballon/page_web/page_web.jpg"></figure>
-<pre><code class="language-plaintext">
-/* esp 8266
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<h1>Code:</h1>
+<pre><code class="language-plaintext">/* esp 8266
 version avec gestion du wifi adresse IP fixe et reboot ESP apres 10 min de perte de connexion,
 comptage du nombre de reboot avec mise en memoire de la valeur du compteur,
 gestion MQTT avec fonction auto discovery homeassistant (envoi vers ha de l'adresse IP, version logiciel, temps de fonctionnement, niveau rssi, compteur de reboot et temperature)
