@@ -1,21 +1,21 @@
 <!--
-title: capteur de temperature déporté à base d'ESP8266 01 & DS18B20
+title: Sondes de température pour ballon d'eau chaude à base de DS18B20
 description: 
 published: true
-date: 2024-09-22T15:48:56.298Z
+date: 2025-02-25T10:44:27.503Z
 tags: 
 editor: ckeditor
 dateCreated: 2024-09-11T05:55:56.719Z
 -->
 
-<h1>Petit montage autour d'un ESP01 et d'un DS18B20:</h1>
+<h1>Petit montage autour d'un ESP8266 et de 3 DS18B20:</h1>
 <p>&nbsp;</p>
-<figure class="image image_resized" style="width:100%;"><img src="/temperature-sensor-on-the-web-with-esp8266-and-ds18b20_elec-cafe.png"></figure>
-<figure class="image image-style-align-right"><img src="/esp-01.png"></figure>
+<p>Ce montage a pour but de fournir 3 températures du ballon d'eau chaude et de l'envoyer via MQTT toutes les 5 minutes à home assistant.</p>
 <ul>
-  <li>Ce montage a pour but de fournir une temperature et de l'envoyer via Mqtt toutes les 10 minutes.</li>
-  <li>La sonde de temperature (DS18B20) sera installée au plus proche du corps de chauffe du ballon d'eau chaude.</li>
-  <li>Une premiere version du montage sera alimenté par piles. (conso ~75mA) c'est pas top !!!!</li>
+  <li>Une des &nbsp;sondes de température (DS18B20) sera installée au plus proche du corps de chauffe, une sur l'arrivée d'eau froide et la dernière sur le départ d'eau chaude.</li>
+  <li>Une première version du montage sera alimenté par piles. (conso ~75mA) c'est pas top !!!!</li>
+  <li>Une deuxième version est alimentée par un petit convertisseur 220Vac / 3 Vdc &nbsp;1A.</li>
+  <li>Le montage est prévu pour passer en mode “deep sleep” pour baisser sensiblement la consommation electrique.&nbsp;</li>
 </ul>
 <p>&nbsp;</p>
 <p>&nbsp;</p>
