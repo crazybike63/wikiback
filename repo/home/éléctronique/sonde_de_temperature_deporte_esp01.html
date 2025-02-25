@@ -2,12 +2,13 @@
 title: Sondes de température pour ballon d'eau chaude à base de DS18B20
 description: 
 published: true
-date: 2025-02-25T11:15:23.670Z
+date: 2025-02-25T11:27:14.242Z
 tags: 
 editor: ckeditor
 dateCreated: 2024-09-11T05:55:56.719Z
 -->
 
+<p>&nbsp;</p>
 <pre><code class="language-plaintext">
 
 Petit montage autour d'un ESP8266 et de 3 DS18B20:</code></pre>
@@ -19,7 +20,7 @@ Petit montage autour d'un ESP8266 et de 3 DS18B20:</code></pre>
   <li>Une deuxième version est alimentée par un petit convertisseur 220Vac / 3Vdc &nbsp;1A.</li>
   <li>Le montage est prévu pour passer en mode “deep sleep” par logiciel afin de baisser sensiblement la consommation électrique.</li>
   <li>J'ai ajouté une led verte et un led rouge pour connaitre l'état de fonctionnement du montage. La led verte clignote toutes les 2 secondes en mode normal pour indiqué que le montage est connecté au wifi locale. La led rouge flash brièvement lors de l'envoi des messages MQTT.</li>
-  <li>il existe une interface web (web serveur). On y retrouve le temps de fonctionnement, le nombre de reboot du montage, le niveau de réception wifi pour le mode normal. il y a les températures de chacune des sondes. Une page “maintenance” permet de remettre à zéro de compteur de redémarrage, de réaliser la mise à jour du firmware ou de changer le mode “Normal/Eco”.</li>
+  <li>il existe une interface web (web serveur). On y retrouve le temps de fonctionnement, le nombre de reboot du montage, le niveau de réception wifi pour le mode normal. il y a les températures de chacune des sondes. Un bouton permet de remettre à zéro de compteur de redémarrage, un autre sert à réaliser la mise à jour du firmware ou de changer le mode “Normal/Eco”.</li>
 </ul>
 <figure class="image"><img src="/sondes_températures_ballon/img_0003.jpeg"></figure>
 <p style="text-align:center;">Sonde DS18B20 montée au cœur du ballon</p>
@@ -30,7 +31,7 @@ Petit montage autour d'un ESP8266 et de 3 DS18B20:</code></pre>
   <figcaption>Carte de gestion et alimentation</figcaption>
 </figure>
 <figure class="image"><img src="/sondes_températures_ballon/img_0008.jpeg">
-  <figcaption>Carte gestion coté Alimentation</figcaption>
+  <figcaption>Carte gestion coté Alimentation avec</figcaption>
 </figure>
 <figure class="image"><img src="/sondes_températures_ballon/img_0098.jpeg">
   <figcaption>interconnexion des sondes avec la carte principale</figcaption>
