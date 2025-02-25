@@ -2,7 +2,7 @@
 title: Sondes de température pour ballon d'eau chaude à base de DS18B20
 description: 
 published: true
-date: 2025-02-25T11:31:25.093Z
+date: 2025-02-25T11:40:58.256Z
 tags: 
 editor: ckeditor
 dateCreated: 2024-09-11T05:55:56.719Z
@@ -12,7 +12,7 @@ dateCreated: 2024-09-11T05:55:56.719Z
 <pre><code class="language-plaintext">
 
 Petit montage autour d'un ESP8266 et de 3 DS18B20:</code></pre>
-<p>&nbsp;</p>
+<h1>Descriptif:</h1>
 <p>Ce montage a pour but de fournir 3 températures du ballon d'eau chaude et de l'envoyer via MQTT toutes les 5 minutes à home assistant.</p>
 <ul>
   <li>Une des &nbsp;sondes de température (DS18B20) sera installée au plus proche du corps de chauffe, une sur l'arrivée d'eau froide et la dernière sur le départ d'eau chaude.</li>
@@ -22,29 +22,31 @@ Petit montage autour d'un ESP8266 et de 3 DS18B20:</code></pre>
   <li>J'ai ajouté une led verte et un led rouge pour connaitre l'état de fonctionnement du montage. La led verte clignote toutes les 2 secondes en mode normal pour indiqué que le montage est connecté au wifi locale. La led rouge flash brièvement lors de l'envoi des messages MQTT.</li>
   <li>il existe une interface web (web serveur). On y retrouve le temps de fonctionnement, le nombre de reboot du montage, le niveau de réception wifi pour le mode normal. il y a les températures de chacune des sondes. Un bouton permet de remettre à zéro de compteur de redémarrage, un autre sert à réaliser la mise à jour du firmware et encore un autre pour &nbsp;changer le mode “Normal/Eco”.</li>
 </ul>
+<h1>Photos:</h1>
 <figure class="image"><img src="/sondes_températures_ballon/img_0003.jpeg"></figure>
 <p style="text-align:center;">Sonde DS18B20 montée au cœur du ballon</p>
 <figure class="image"><img src="/sondes_températures_ballon/img_0005.jpeg">
-  <figcaption>La sonde est installée dans le puis de mesure du thermostat</figcaption>
+  <figcaption><span class="text-big">La sonde est installée dans le puis de mesure du thermostat</span></figcaption>
 </figure>
 <figure class="image"><img src="/sondes_températures_ballon/img_0009.jpeg">
   <figcaption>Carte de gestion et alimentation</figcaption>
 </figure>
 <figure class="image"><img src="/sondes_températures_ballon/img_0008.jpeg">
-  <figcaption>Carte gestion coté Alimentation avec</figcaption>
+  <figcaption><span class="text-big">Carte gestion coté Alimentation&nbsp;</span></figcaption>
 </figure>
 <figure class="image"><img src="/sondes_températures_ballon/img_0098.jpeg">
-  <figcaption>interconnexion des sondes avec la carte principale</figcaption>
+  <figcaption><span class="text-big">interconnexions des sondes avec la carte principale</span></figcaption>
 </figure>
 <figure class="image"><img src="/sondes_températures_ballon/img_0100.jpeg">
-  <figcaption>La sonde sur la sortie eau chaude</figcaption>
+  <figcaption><span class="text-big">La sonde sur la sortie eau chaude</span></figcaption>
 </figure>
 <figure class="image"><img src="/sondes_températures_ballon/img_0099.jpeg">
-  <figcaption>Sonde sur l'entrée d'eau chaude</figcaption>
+  <figcaption><span class="text-big">Sonde sur l'entrée d'eau chaude</span></figcaption>
 </figure>
 <figure class="image"><img src="/sondes_températures_ballon/img_0102.jpeg">
-  <figcaption>Les 3 sondes en place sur le ballon d'eau chaude</figcaption>
+  <figcaption><span class="text-big">Les 3 sondes en place sur le ballon d'eau chaude</span></figcaption>
 </figure>
+<h1>Page web:</h1>
 <figure class="image"><img src="/sondes_températures_ballon/page_web/page_web.jpg"></figure>
 <pre><code class="language-plaintext">
 /* esp 8266
