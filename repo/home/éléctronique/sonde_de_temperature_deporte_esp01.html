@@ -2,13 +2,15 @@
 title: Sondes de température pour ballon d'eau chaude à base de DS18B20
 description: 
 published: true
-date: 2025-02-25T11:07:01.533Z
+date: 2025-02-25T11:15:23.670Z
 tags: 
 editor: ckeditor
 dateCreated: 2024-09-11T05:55:56.719Z
 -->
 
-<h1>Petit montage autour d'un ESP8266 et de 3 DS18B20:</h1>
+<pre><code class="language-plaintext">
+
+Petit montage autour d'un ESP8266 et de 3 DS18B20:</code></pre>
 <p>&nbsp;</p>
 <p>Ce montage a pour but de fournir 3 températures du ballon d'eau chaude et de l'envoyer via MQTT toutes les 5 minutes à home assistant.</p>
 <ul>
@@ -20,8 +22,10 @@ dateCreated: 2024-09-11T05:55:56.719Z
   <li>il existe une interface web (web serveur). On y retrouve le temps de fonctionnement, le nombre de reboot du montage, le niveau de réception wifi pour le mode normal. il y a les températures de chacune des sondes. Une page “maintenance” permet de remettre à zéro de compteur de redémarrage, de réaliser la mise à jour du firmware ou de changer le mode “Normal/Eco”.</li>
 </ul>
 <figure class="image"><img src="/sondes_températures_ballon/img_0003.jpeg"></figure>
-<p>&nbsp;</p>
-<figure class="image"><img src="/sondes_températures_ballon/img_0005.jpeg"></figure>
+<p style="text-align:center;">Sonde DS18B20 montée au cœur du ballon</p>
+<figure class="image"><img src="/sondes_températures_ballon/img_0005.jpeg">
+  <figcaption>La sonde est installée dans le puis de mesure du thermostat</figcaption>
+</figure>
 <figure class="image"><img src="/sondes_températures_ballon/img_0009.jpeg">
   <figcaption>Carte de gestion et alimentation</figcaption>
 </figure>
@@ -37,7 +41,723 @@ dateCreated: 2024-09-11T05:55:56.719Z
 <figure class="image"><img src="/sondes_températures_ballon/img_0099.jpeg">
   <figcaption>Sonde sur l'entrée d'eau chaude</figcaption>
 </figure>
-<p>&nbsp;</p>
 <figure class="image"><img src="/sondes_températures_ballon/img_0102.jpeg">
   <figcaption>Les 3 sondes en place sur le ballon d'eau chaude</figcaption>
 </figure>
+<pre><code class="language-plaintext">/* esp 8266
+version avec gestion du wifi adresse IP fixe et reboot ESP apres 10 min de perte de connexion,
+comptage du nombre de reboot avec mise en memoire de la valeur du compteur,
+gestion MQTT avec fonction auto discovery homeassistant (envoi vers ha de l'adresse IP, version logiciel, temps de fonctionnement, niveau rssi, compteur de reboot et temperature)
+page web avec:
+             temps de fonctionnement depuis le dernier reboot, 
+             niveau de reception WIFI (RSSI), 
+             affichage du compteur de reboot esp,
+             possibilité de reset du compteur, 
+             mise à jour OTA et affichage de la version logiciel.
+Version 1.1.5 du 22 séptembre 2024
+Version 2.0.0 du 4 Février 2025 MQTT discovery OL
+Version 2.1.0 du 5 Février 2025 Multi DS18B20 mqtt ok
+Version 2.2.0 du 6 Février 2025 Ajout des leds Verte clignote toutes les 2s quand Wifi ok et flash rouge à chaque publication mqtt
+Version 2.2.5 di 6 Février 2025 Ajout du mode Deep Sleep
+*/
+
+#include &lt;PubSubClient.h&gt;
+#include &lt;ESP8266WebServer.h&gt;
+#include &lt;ESP8266mDNS.h&gt;
+#include &lt;Updater.h&gt;
+#include &lt;EEPROM.h&gt;
+#include &lt;OneWire.h&gt;
+#include &lt;DallasTemperature.h&gt;  // Pour le DS18B20
+
+#include "config.h"
+
+// Capteur de température DS18B20
+#define ONE_WIRE_BUS 13  // GPIO 13 pour les DS18B20
+OneWire oneWire(ONE_WIRE_BUS);
+DallasTemperature sensors(&amp;oneWire);
+
+// Stockage des adresses des sondes
+DeviceAddress tempDeviceAddress;
+#define MAX_SONDES 3 // Nombre maximum de sondes gérées
+DeviceAddress sondes[MAX_SONDES];
+int nombreSondes = 0;
+
+#define LED_MQTT 14  // LED qui clignote à chaque publication MQTT
+#define LED_WIFI 12  // LED qui clignote toutes les 2s si le Wi-Fi est connecté
+
+unsigned long lastBlinkTime = 0;
+unsigned long lastMQTTBlinkTime = 0;
+bool wifiLedState = false;
+bool mqttLedState = false;
+
+#define EEPROM_SIZE 10
+#define EEPROM_MODE_ADDR 0
+#define EEPROM_REBOOT_ADDR 1
+
+// Variables pour la gestion de la connexion Wi-Fi et MQTT
+unsigned long lastWiFiCheck = 0;
+unsigned long lastReconnectAttempt = 0;
+unsigned long lastMQTTPublish = 0;
+const unsigned long checkInterval = 30000;  // 30 secondes pour vérifier le Wi-Fi
+const unsigned long mqttPublishInterval =30000;  // 30s pour publier MQTT
+const unsigned long maxDisconnectTime = 600000; // 10 minutes (en millisecondes)
+const unsigned long reconnectDelay = 5000; // 5 secondes de délai pour les tentatives de reconnexion
+#define DEEP_SLEEP_DURATION 300e6 // 5 minutes en microsecondes
+#define MQTT_INTERVAL 30000 // 30 secondes
+#define RUN_DURATION 120000 // 2 minutes en mode Eco
+
+unsigned long previousMillis = 0;
+bool ecoMode = false;
+bool isConnected = true;
+bool mqttConnected = false;  // Indique l'état de la connexion MQTT
+
+WiFiClient espClient;
+PubSubClient client(espClient);
+ESP8266WebServer server(80);
+
+// Compteur de redémarrages
+int reboot_count = 0;
+
+// Adresses EEPROM pour le compteur et le flag de reset
+const int EEPROM_COUNTER_ADDRESS = 0;
+const int EEPROM_FLAG_ADDRESS = 1;
+
+// Déclaration des fonctions avant le setup
+void handleRoot();
+void handleUpdate();
+void handleResetCounter();
+void handleStatus();
+void handleLogs();
+
+// Fonction pour calculer l'uptime (temps depuis le dernier redémarrage)
+String getUptime() 
+{
+  unsigned long millisSinceBoot = millis();
+  unsigned long seconds = millisSinceBoot / 1000;
+  unsigned long minutes = seconds / 60;
+  unsigned long hours = minutes / 60;
+  unsigned long days = hours / 24;
+
+  seconds = seconds % 60;
+  minutes = minutes % 60;
+  hours = hours % 24;
+
+  String uptime = String(days) + "j " + String(hours) + "h " + String(minutes) + "m " + String(seconds) + "s";
+  return uptime;
+}
+
+// Fonction pour obtenir le RSSI (niveau de signal Wi-Fi)
+int getRSSI() 
+{
+  return WiFi.RSSI();
+}
+
+// Fonction pour réinitialiser le compteur de redémarrages avec le flag de reset
+void resetCounter() 
+{
+  reboot_count = 0;  // Remettre le compteur à 0
+  EEPROM.write(EEPROM_COUNTER_ADDRESS, reboot_count);
+  EEPROM.write(EEPROM_FLAG_ADDRESS, 1); // Définir le flag de reset à 1
+  EEPROM.commit();  // Sauvegarder les changements
+  Serial.println("Compteur de redémarrages réinitialisé.");
+}
+
+
+// Réinitialiser le compteur de redémarrages depuis la page web
+void handleResetCounter() 
+{
+  resetCounter();  
+  server.send(200, "text/html", "&lt;meta http-equiv='refresh' content='3;url=/'&gt;&lt;body&gt;Compteur r&amp;eacute;initialis&amp;eacute;. Redirection vers la page d'accueil dans 3 secondes...&lt;/body&gt;");
+}
+
+
+// Callback appelé lors de la réception de messages MQTT
+void callback(char* topic, byte* payload, unsigned int length) 
+{
+    String message;
+    for (unsigned int i = 0; i &lt; length; i++) 
+    {
+        message += (char)payload[i];
+    }
+    message.trim();  // Supprimer les espaces inutiles
+
+    // Vérifier si le message concerne le mode de fonctionnement
+    if (String(topic) == topic_mode) 
+    {
+        String receivedMode = message;
+        receivedMode.toLowerCase(); // Convertir en minuscules
+
+        if (receivedMode == "eco") 
+        {
+            ecoMode = true;
+        }
+        else 
+        {
+            ecoMode = false;
+        }
+        saveModeToEEPROM(ecoMode);
+        addLog("Mode changé via MQTT : " + receivedMode);
+    }
+}
+
+// Connexion au serveur MQTT avec gestion des délais de reconnexion
+void reconnectMQTT() 
+{
+  if (!client.connected()) 
+  {
+    Serial.print("Tentative de connexion au serveur MQTT...");
+    if (client.connect(mqtt_client_id, mqtt_username, mqtt_password)) 
+    {
+      Serial.println("Connecté au serveur MQTT.");
+      mqttConnected = true;
+      delay(500);
+      MQTTDiscovery();  // Appel à la fonction d'autodiscovery
+      publishStatus();     // Publie le statut initial après connexion
+    }
+    else
+    {
+      Serial.println("Échec de la connexion au serveur MQTT.");
+      mqttConnected = false;
+      delay(reconnectDelay);  // Attendre avant de réessayer
+    }
+  }
+}
+
+// Contrôle de la connexion Wi-Fi avec gestion plus robuste des reconnexions
+void checkWiFiConnection() 
+{
+  if (WiFi.status() != WL_CONNECTED) 
+  {
+    Serial.println("Wi-Fi déconnecté, tentative de reconnexion...");
+    WiFi.reconnect();
+    if (!isConnected) 
+    {
+      lastReconnectAttempt = millis();
+      isConnected = false;
+    } else if (millis() - lastReconnectAttempt &gt; maxDisconnectTime) 
+    {
+      Serial.println("Redémarrage de l'ESP après 10 minutes de déconnexion...");
+      ESP.restart();
+    }
+  } 
+  else 
+  {
+    isConnected = true;
+  }
+}
+
+void handleStatus() 
+{  
+    String json = "{";
+    json += "\"uptime\":\"" + getUptime() + "\", ";
+    json += "\"rssi\":\"" + String(getRSSI()) + " dBm\", ";
+    json += "\"version\":\"" + String(software_version) + "\", ";
+    json += "\"mqtt_connected\":" + String(mqttConnected ? "true" : "false") + ", ";
+    json += "\"mode\":\"" + String(ecoMode ? "Eco" : "Normal") + "\", ";
+        json += "\"temperatures\": {";
+        sensors.requestTemperatures(); // Demande la mise à jour des températures avant de les lire
+    
+    for (int i = 0; i &lt; nombreSondes &amp;&amp; i &lt; MAX_SONDES; i++) 
+    {
+        float temperature = sensors.getTempC(sondes[i]);
+
+        // Vérification de la validité de la température
+        if (temperature == DEVICE_DISCONNECTED_C) 
+        {
+            json += "\"sonde" + String(i) + "\": \"Erreur\"";
+        } 
+        else 
+        {
+            json += "\"sonde" + String(i) + "\": \"" + String(temperature) + "°C\"";
+        }
+        
+        if (i &lt; nombreSondes - 1) json += ", ";
+    }
+
+    json += "}}";
+    server.send(200, "application/json", json);
+}
+
+void handleRoot() {
+    String page = "&lt;!DOCTYPE html&gt;&lt;html lang='fr'&gt;&lt;head&gt;";
+    page += "&lt;meta charset='UTF-8'&gt;";
+    page += "&lt;meta name='viewport' content='width=device-width, initial-scale=1.0'&gt;";
+    page += "&lt;title&gt;ESP Mode&lt;/title&gt;";
+    page += "&lt;style&gt;";
+    page += "body { font-family: Arial, sans-serif; background-color: #f4f4f4; }";
+    page += ".container { width: 80%; margin: auto; max-width: 600px; }";
+    page += ".card { background-color: white; padding: 20px; margin: 20px 0; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }";
+    page += "button { padding: 10px 20px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; }";
+    page += "button:hover { background-color: #45a049; }";
+    page += "h1 { text-align: center; }";
+    page += "pre { background: #000; color: #0f0; padding: 10px; height: 200px; overflow-y: scroll; border-radius: 5px; }";
+    page += "&lt;/style&gt;";
+
+    page += "&lt;/head&gt;&lt;body&gt;&lt;h1&gt;Sondes de Températures Ballon d'eau Chaude&lt;/h1&gt;&lt;div class='container'&gt;";
+
+    // ✅ Informations système
+    page += "&lt;div class='card'&gt;&lt;h2&gt;Informations Système&lt;/h2&gt;";
+    page += "&lt;p&gt;Uptime: &lt;span id='uptime'&gt;--&lt;/span&gt;&lt;/p&gt;";
+    page += "&lt;p&gt;RSSI: &lt;span id='rssi'&gt;-- dBm&lt;/span&gt;&lt;/p&gt;";
+    page += "&lt;p&gt;Version: &lt;span id='version'&gt;--&lt;/span&gt;&lt;/p&gt;";
+    page += "&lt;p&gt;MQTT: &lt;span id='mqtt'&gt;--&lt;/span&gt;&lt;/p&gt;";
+    page += "&lt;/div&gt;";
+
+    // ✅ Températures des sondes
+    page += "&lt;div class='card'&gt;&lt;h2&gt;Températures des sondes&lt;/h2&gt;&lt;ul id='temperature-list'&gt;&lt;/ul&gt;&lt;/div&gt;";
+
+    // ✅ Mode de fonctionnement
+    page += "&lt;div class='card'&gt;&lt;h2&gt;Mode de fonctionnement&lt;/h2&gt;";
+    page += "&lt;p id='mode'&gt;&lt;/p&gt;";
+    page += "&lt;button onclick=\"changeMode('normal')\"&gt;Mode Normal&lt;/button&gt;";
+    page += "&lt;button onclick=\"changeMode('eco')\"&gt;Mode Eco&lt;/button&gt;";
+    page += "&lt;/div&gt;";
+
+    // ✅ Redémarrage de l'ESP
+    page += "&lt;div class='card'&gt;&lt;h2&gt;Redémarrage de l'ESP&lt;/h2&gt;";
+    page += "&lt;button onclick=\"location.href='/reboot'\"&gt;Redémarrer&lt;/button&gt;&lt;/div&gt;";
+
+    // ✅ Compteur de redémarrages
+    page += "&lt;div class='card'&gt;&lt;h2&gt;Compteur de redémarrages&lt;/h2&gt;";
+    page += "&lt;p&gt;Compteur de redémarrages : &lt;span id='reboot_count'&gt;" + String(reboot_count) + "&lt;/span&gt;&lt;/p&gt;";
+    page += "&lt;button onclick=\"resetCounter()\"&gt;Réinitialiser le compteur&lt;/button&gt;&lt;/div&gt;";
+
+    // ✅ Mise à jour OTA
+    page += "&lt;div class='card'&gt;&lt;h2&gt;Mise à jour OTA&lt;/h2&gt;";
+    page += "&lt;form method='POST' action='/update' enctype='multipart/form-data'&gt;";
+    page += "&lt;input type='file' name='update'&gt;&lt;br&gt;&lt;br&gt;";
+    page += "&lt;button type='submit'&gt;Mise à jour&lt;/button&gt;&lt;/form&gt;&lt;/div&gt;";
+
+    // ✅ Logs
+    page += "&lt;div class='card'&gt;&lt;h2&gt;Logs&lt;/h2&gt;";
+    page += "&lt;pre id='logs'&gt;&lt;/pre&gt;";
+    page += "&lt;/div&gt;";
+
+    // ✅ JavaScript pour les mises à jour et boutons interactifs
+    page += "&lt;script&gt;";
+    page += "document.addEventListener('DOMContentLoaded', function () {";
+
+    // ✅ Fonction pour changer le mode et rafraîchir la page
+    page += " function changeMode(mode) {";
+    page += " fetch('/set?mode=' + mode)";
+    page += " .then(() =&gt; {";
+    page += "    setTimeout(() =&gt; location.reload(), 2000);"; // Recharge après 2s
+    page += " });";
+    page += " }";
+
+    // ✅ Mise à jour des données via AJAX
+    page += "  function updateStatus() {";
+    page += "    fetch('/status')";
+    page += "    .then(response =&gt; response.json())";
+    page += "    .then(data =&gt; {";
+    page += "      document.getElementById('uptime').innerHTML = data.uptime;";
+    page += "      document.getElementById('rssi').innerHTML = data.rssi + ' dBm';";
+    page += "      document.getElementById('version').innerHTML = data.version;";
+    page += "      document.getElementById('mqtt').innerHTML = data.mqtt_connected ? 'Connecté' : 'Déconnecté';";
+    page += "      document.getElementById('reboot_count').innerHTML = data.reboot_count || 0;"; 
+
+    // ✅ Mise à jour des températures
+    page += "      var tempList = document.getElementById('temperature-list');";
+    page += "      tempList.innerHTML = '';";
+    page += "      if (data.temperatures) {";
+    page += "        for (var key in data.temperatures) {";
+    page += "          tempList.innerHTML += '&lt;li&gt;' + key + ' : ' + data.temperatures[key] + '&lt;/li&gt;'; }}";
+    page += "    })";
+    page += "    .catch(error =&gt; console.error('Erreur de récupération des données:', error));";
+    page += "  }";
+
+    // ✅ Réinitialisation du compteur et rafraîchissement de la page
+    page += " function resetCounter() {";
+    page += " fetch('/resetCounter')";
+    page += " .then(() =&gt; {";
+    page += "     setTimeout(() =&gt; location.reload(), 2000);"; // Recharge la page après 2s
+    page += " });";
+    page += " }";
+
+    // ✅ Mise à jour des logs
+    page += "  function updateLogs() {";
+    page += "    fetch('/logs')";
+    page += "    .then(response =&gt; response.text())";
+    page += "    .then(data =&gt; {";
+    page += "      document.getElementById('logs').innerText = data;";
+    page += "      document.getElementById('logs').scrollTop = document.getElementById('logs').scrollHeight;";
+    page += "    });";
+    page += "  }";
+
+    // ✅ Rafraîchissement automatique des données et logs
+    page += "  setInterval(updateStatus, 5000);";  // Rafraîchit toutes les 5s
+    page += "  setInterval(updateLogs, 5000);";  // Rafraîchit les logs toutes les 5s
+    page += "  updateStatus();"; // Exécute immédiatement
+    page += "  updateLogs();"; // Exécute immédiatement
+    page += "});";
+    page += "&lt;/script&gt;";
+
+    page += "&lt;/div&gt;";
+    page += "&lt;/body&gt;&lt;/html&gt;";
+
+    server.send(200, "text/html", page);
+}
+
+// Page pour la mise à jour OTA
+void handleUpdate()
+{
+  HTTPUpload&amp; upload = server.upload();
+  if (upload.status == UPLOAD_FILE_START) 
+  {
+    Serial.printf("Mise à jour : %s\n", upload.filename.c_str());
+    if (!Update.begin((ESP.getFreeSketchSpace() - 0x1000) &amp; 0xFFFFF000)) 
+    {
+      Serial.println("Erreur début mise à jour");
+    }
+  } else if (upload.status == UPLOAD_FILE_WRITE) {
+    if (Update.write(upload.buf, upload.currentSize) != upload.currentSize) 
+    {
+      Serial.println("Erreur d'écriture mise à jour");
+    }
+  } 
+  else if (upload.status == UPLOAD_FILE_END) 
+  {
+    if (Update.end(true)) 
+    {
+      server.send(200, "text/html", "&lt;meta http-equiv='refresh' content='5;url=/'&gt;&lt;body&gt;Mise &amp;agrave; jour r&amp;eacute;ussie, redirection dans 5 secondes...&lt;/body&gt;");
+      delay(1000);
+      ESP.restart();
+    } 
+    else 
+    {
+      server.send(500, "text/html", "Échec de la mise à jour.");
+    }
+  }
+}
+
+String logs = "";  // Stocke les logs en mémoire
+
+void addLog(String message) 
+{
+    logs += message + "\\n";  // Ajoute le log avec un saut de ligne
+    if (logs.length() &gt; 1000) 
+    {  // Limite à 1000 caractères pour éviter l'overflow
+        logs = logs.substring(logs.length() - 1000);
+    }
+}
+
+void handleLogs() 
+{
+    server.send(200, "text/plain", logs);
+}
+
+
+
+void saveModeToEEPROM(bool mode) 
+{
+    EEPROM.write(EEPROM_MODE_ADDR, mode ? 1 : 0);
+    EEPROM.commit();  // Ajoute un commit pour garantir l'écriture
+    client.publish(topic_status, mode ? "eco" : "normal", true);
+}
+
+
+bool loadModeFromEEPROM() 
+{
+    int val = EEPROM.read(EEPROM_MODE_ADDR);
+    if (val == 255) {  // EEPROM vierge après un flash
+        return false;   // Mode normal par défaut
+    }
+    return (val == 1);
+}
+
+void saveRebootCountToEEPROM()
+{
+    EEPROM.begin(512);
+    reboot_count++;
+    EEPROM.write(EEPROM_COUNTER_ADDRESS, reboot_count);
+    EEPROM.commit();
+    EEPROM.end();
+}
+
+
+
+void loadRebootCountFromEEPROM() 
+{
+    EEPROM.begin(512);
+    int count = EEPROM.read(EEPROM_COUNTER_ADDRESS);
+    if (count == 255) {  // EEPROM vierge
+        count = 0;
+        EEPROM.write(EEPROM_COUNTER_ADDRESS, count);
+        EEPROM.commit();
+    }
+    reboot_count = count;
+    EEPROM.end();
+}
+
+
+
+void handleSetMode() 
+{
+    if (server.hasArg("mode")) 
+    {
+        String mode = server.arg("mode");
+
+        if (mode == "Normal") 
+        {
+            ecoMode = false;
+        } else if (mode == "Eco") 
+        {
+            ecoMode = true;
+        }
+
+        addLog("Mode changé en " + mode);  // Log du changement
+        server.send(200, "text/plain", "Mode mis à jour");
+    } 
+    else 
+    {
+        server.send(400, "text/plain", "Requête invalide");
+    }
+}
+
+// Fonction principale de setup
+void setup() 
+{  
+  pinMode(LED_MQTT, OUTPUT);
+  pinMode(LED_WIFI, OUTPUT);
+  digitalWrite(LED_MQTT, LOW);
+  digitalWrite(LED_WIFI, LOW);
+  
+  Serial.begin(115200);
+ EEPROM.begin(512); // Initialisation EEPROM pour stockage
+
+// Charger le compteur de redémarrages
+int storedRebootCount = EEPROM.read(EEPROM_COUNTER_ADDRESS);
+if (storedRebootCount == 255) {  // EEPROM vierge, initialisation à 0
+    storedRebootCount = 0;
+}
+
+// Vérifier si le flag de reset est actif
+if (EEPROM.read(EEPROM_FLAG_ADDRESS) == 1) 
+{
+    storedRebootCount = 0;  // Remise à zéro forcée
+    EEPROM.write(EEPROM_FLAG_ADDRESS, 0); // Réinitialiser le flag
+    EEPROM.commit();
+}
+
+// Incrémenter le compteur et le sauvegarder
+storedRebootCount++;
+EEPROM.write(EEPROM_COUNTER_ADDRESS, storedRebootCount);
+EEPROM.commit();
+
+// Mettre à jour la variable globale reboot_count
+reboot_count = storedRebootCount;
+
+// Envoyer la valeur en MQTT
+client.publish("esp8266/reboot_count", String(reboot_count).c_str(), true);
+
+// Ajouter un log visible sur la page web
+addLog("Compteur de redémarrages: " + String(reboot_count));
+
+  sensors.begin(); // Initialiser le capteur de température
+  sensors.setResolution(12);  // Forcer la résolution à 12 bits
+  
+  nombreSondes = sensors.getDeviceCount();
+    
+    for (int i = 0; i &lt; nombreSondes &amp;&amp; i &lt; MAX_SONDES; i++) 
+    {
+        sensors.getAddress(sondes[i], i);
+    }
+
+  
+  if (!WiFi.config(local_IP, gateway, subnet, primaryDNS, secondaryDNS))
+  {
+    Serial.println("Erreur de configuration d'adresse IP fixe.");
+  }
+  Serial.println("Connexion au WiFi...");
+    WiFi.begin(ssid, password);
+    while (WiFi.status() != WL_CONNECTED) 
+    {
+        delay(500);
+        Serial.print(".");
+    }
+    Serial.println("WiFi connecté");
+    
+  if (!MDNS.begin("esp8266")) 
+  {
+    Serial.println("Erreur de démarrage MDNS");
+  }
+  server.on("/reboot", HTTP_GET, []() {
+    server.send(200, "text/html", "&lt;meta http-equiv='refresh' content='3;url=/'&gt;&lt;body&gt;Redémarrage en cours... Redirection vers la page d'accueil dans 3 secondes.&lt;/body&gt;");
+    delay(1000);  // Laisser le temps d'envoyer la réponse
+    ESP.restart(); // Redémarrer l'ESP
+});
+
+  server.on("/", handleRoot);
+  server.on("/resetCounter", HTTP_GET, []() {
+    reboot_count = 0;
+    EEPROM.write(EEPROM_COUNTER_ADDRESS, reboot_count);
+    EEPROM.commit();
+    client.publish("esp8266/reboot_count", "0", true);
+    addLog("Compteur de redémarrages réinitialisé.");
+    server.send(200, "text/html", "&lt;meta http-equiv='refresh' content='3;url=/'&gt;&lt;body&gt;Compteur réinitialisé. Redirection...&lt;/body&gt;");
+});
+
+  server.on("/status", handleStatus);  // Route pour récupérer les données mises à jour
+  server.on("/set", HTTP_GET, []() {
+    if (server.hasArg("mode")) {
+        String mode = server.arg("mode");
+        ecoMode = (mode == "eco");
+        saveModeToEEPROM(ecoMode);
+        server.send(200, "text/plain", "Mode mis à jour en: " + mode);
+    } else {
+        server.send(400, "text/plain", "Mode invalide !");
+    }
+});
+
+  server.on("/logs", HTTP_GET, handleLogs);
+  server.on("/update", HTTP_POST, []() {
+  server.sendHeader("Connection", "close");
+  server.send(200, "text/plain", (Update.hasError()) ? "FAIL" : "OK");
+  }, handleUpdate);
+  server.begin();
+
+  client.setServer(mqtt_server, 1883);
+  client.setCallback(callback);
+  reconnectMQTT();
+  
+    loadRebootCountFromEEPROM();
+    ecoMode = loadModeFromEEPROM();
+    client.publish(topic_status, ecoMode ? "eco" : "normal", true);
+
+    server.on("/", handleRoot);
+    server.begin();
+    addLog("Fin du Setup !");
+
+    if (ecoMode) 
+    {
+        delay(RUN_DURATION);
+        ESP.deepSleep(DEEP_SLEEP_DURATION);
+    }
+}
+
+void MQTTDiscovery()
+{
+    // Informations sur l'appareil (communes à tous les capteurs)
+    String deviceInfo = "{\"identifiers\":[\"" + String(espName) + "\"], \"name\":\"" + String(espName) + "\", \"model\":\"" + String(MQTT_DEVICE_MODEL) + "\", \"manufacturer\":\"" + String(MQTT_MANUFACTURER) + "\"}";
+   
+    // Configurer le temps de fonctionnement (Uptime)
+    String payloadUptime = "{\"name\":\"" + String(espName) + " Uptime\", \"state_topic\":\"homeassistant/sensor/" + String(espName) + "/uptime\", \"unique_id\":\"" + String(espName) + "_uptime\", \"device\":" + deviceInfo + "}";
+    client.publish(("homeassistant/sensor/" + String(espName) + "/uptime/config").c_str(), payloadUptime.c_str(), true);
+
+    // Configurer le capteur RSSI
+    String payloadRSSI = "{\"name\":\"" + String(espName) + " RSSI\", \"state_topic\":\"homeassistant/sensor/" + String(espName) + "/rssi\", \"unique_id\":\"" + String(espName) + "_rssi\", \"device\":" + deviceInfo + ", \"unit_of_measurement\":\"dBm\", \"device_class\":\"signal_strength\"}";
+    client.publish(("homeassistant/sensor/" + String(espName) + "/rssi/config").c_str(), payloadRSSI.c_str(), true);
+   
+    // Configurer le reboot count
+    String payloadRebootCount = "{\"name\":\"" + String(espName) + " Reboot Count\", \"state_topic\":\"homeassistant/sensor/" + String(espName) + "/reboot_count\", \"unique_id\":\"" + String(espName) + "_reboot_count\", \"device\":" + deviceInfo + "}";
+    client.publish(("homeassistant/sensor/" + String(espName) + "/reboot_count/config").c_str(), payloadRebootCount.c_str(), true);
+
+    // Configurer l'adresse IP de l'esp
+    String payloadIP = "{\"name\":\"" + String(espName) + " IP Address\", \"state_topic\":\"homeassistant/sensor/" + String(espName) + "/ip_address\", \"unique_id\":\"" + String(espName) + "_ip_address\", \"device\":" + deviceInfo + "}";
+    client.publish(("homeassistant/sensor/" + String(espName) + "/ip_address/config").c_str(), payloadIP.c_str(), true);
+    
+    for (int i = 0; i &lt; nombreSondes &amp;&amp; i &lt; MAX_SONDES; i++) 
+    {
+        String topic = "homeassistant/sensor/" + String(espName) + "/sonde" + String(i) + "/config";
+        String payload = "{";
+        payload += "\"name\":\"Sonde " + String(i) + "\", ";
+        payload += "\"state_topic\":\"homeassistant/sensor/" + String(espName) + "/sonde" + String(i) + "\", ";
+        payload += "\"unique_id\":\"" + String(espName) + "_sonde" + String(i) + "\", ";
+        payload += "\"availability_topic\":\"homeassistant/status\", ";
+        payload += "\"device\": {\"identifiers\":[\"" + String(espName) + "\"], \"name\":\"" + String(espName) + "\"}, ";
+        payload += "\"unit_of_measurement\":\"°C\", ";
+        payload += "\"device_class\":\"temperature\"}";
+        client.publish(topic.c_str(), payload.c_str(), true);
+    }
+     addLog("Discovery publiés !");
+}
+
+void publishStatus()
+{  
+  // Clignotement rapide de la LED MQTT
+     digitalWrite(LED_MQTT, HIGH);
+        
+    // Publier les données générales
+    client.publish(("homeassistant/sensor/" + String(espName) + "/uptime").c_str(), getUptime().c_str(), true);
+    client.publish(("homeassistant/sensor/" + String(espName) + "/rssi").c_str(), String(WiFi.RSSI()).c_str(), true);
+    client.publish(("homeassistant/sensor/" + String(espName) + "/reboot_count").c_str(), String(reboot_count).c_str(), true);
+    addLog("Reboot count envoyé à MQTT: " + String(reboot_count));
+    client.publish(("homeassistant/sensor/" + String(espName) + "/ip_address").c_str(), WiFi.localIP().toString().c_str(), true);
+    
+    // Mise à jour des températures
+    sensors.requestTemperatures();
+    for (int i = 0; i &lt; nombreSondes &amp;&amp; i &lt; MAX_SONDES; i++) 
+    {
+        float temperature = sensors.getTempC(sondes[i]);
+        if (temperature != DEVICE_DISCONNECTED_C) 
+        {
+            String topic = "homeassistant/sensor/" + String(espName) + "/sonde" + String(i);
+            String payload = String(temperature, 2);
+            client.publish(topic.c_str(), payload.c_str(), true);
+        }
+    }
+      delay(100);
+      digitalWrite(LED_MQTT, LOW);
+}
+
+// Boucle principale
+void loop() 
+{
+ // Clignotement de la LED Wi-Fi toutes les 2s si connecté
+    if (WiFi.status() == WL_CONNECTED) 
+    {
+     if (millis() - lastBlinkTime &gt;= 2000) 
+     {
+     wifiLedState = !wifiLedState;
+     digitalWrite(LED_WIFI, wifiLedState ? HIGH : LOW);
+     lastBlinkTime = millis();
+     }
+    } 
+    else
+   {
+    digitalWrite(LED_WIFI, LOW);
+   }
+
+    if (WiFi.status() != WL_CONNECTED) 
+    {
+    for (int i = 0; i &lt; 5; i++) 
+      {
+        digitalWrite(LED_WIFI, HIGH);
+        delay(200);
+        digitalWrite(LED_WIFI, LOW);
+        delay(200);
+      }
+    }
+
+  if (millis() - lastWiFiCheck &gt; checkInterval) 
+  {
+    lastWiFiCheck = millis();
+    checkWiFiConnection();
+  }
+
+  if (!client.connected()) 
+  {
+    mqttConnected = false;
+    reconnectMQTT();
+  } 
+  else 
+  {
+    mqttConnected = true;
+  }
+  client.loop();  // Assurer la réception des messages MQTT
+
+  if (millis() - lastMQTTPublish &gt; mqttPublishInterval) 
+  {
+    lastMQTTPublish = millis();
+    publishStatus();
+  }
+
+  server.handleClient();  // Gestion des requêtes HTTP
+  unsigned long currentMillis = millis();
+    if (currentMillis - previousMillis &gt;= MQTT_INTERVAL) 
+    {
+        previousMillis = currentMillis;
+        client.publish(topic_status, ecoMode ? "eco" : "normal", true);
+    }
+}
+</code></pre>
