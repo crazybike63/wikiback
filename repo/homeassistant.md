@@ -2,7 +2,7 @@
 title: Homeassistant
 description: purge logs
 published: true
-date: 2025-09-08T09:16:59.894Z
+date: 2025-09-08T09:17:16.373Z
 tags: 
 editor: markdown
 dateCreated: 2025-09-08T09:09:00.096Z
@@ -49,7 +49,7 @@ rm home-assistant.log.1
 
 1. On lance df -h pour regarder la taille récupérer et on va sur homeassistant pour vérifier que le service redémarre.
 
-> On ne redémarre pas la VM sans avoir vérifier que le service fontionne car on est actuellement connecté sur un système sur lequel on a la main. Si une erreur a été commise on risque de perdre complétement l'accès au système.
+> On ne redémarre pas la VM sans avoir vérifié que le service fontionne car on est actuellement connecté sur un système sur lequel on a la main. Si une erreur a été commise on risque de perdre complétement l'accès au système.
 {.is-warning}
 
 ## TODO
