@@ -2,7 +2,7 @@
 title: Homeassistant
 description: purge logs
 published: true
-date: 2025-09-08T09:13:32.784Z
+date: 2025-09-08T09:16:59.894Z
 tags: 
 editor: markdown
 dateCreated: 2025-09-08T09:09:00.096Z
