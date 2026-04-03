@@ -2,7 +2,7 @@
 title: modification du poele Jolly Mec
 description: 
 published: true
-date: 2026-04-03T05:21:42.664Z
+date: 2026-04-03T05:32:40.520Z
 tags: 
 editor: markdown
 dateCreated: 2024-11-21T14:33:16.337Z
@@ -50,9 +50,9 @@ dateCreated: 2024-11-21T14:33:16.337Z
 
 
 
-
-
-
+# Interface dans Home assistant:
+![interface_ha__jollymec.jpg](/jolly_mec/interface_ha__jollymec.jpg)
+# code esp
 
 
 Your content here
