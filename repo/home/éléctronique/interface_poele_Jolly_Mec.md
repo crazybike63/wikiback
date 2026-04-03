@@ -2,7 +2,7 @@
 title: modification du poele Jolly Mec
 description: 
 published: true
-date: 2024-11-21T14:34:31.452Z
+date: 2026-04-03T05:21:42.664Z
 tags: 
 editor: markdown
 dateCreated: 2024-11-21T14:33:16.337Z
@@ -27,7 +27,7 @@ dateCreated: 2024-11-21T14:33:16.337Z
 
 ![img_9279.jpg](/jolly_mec/img_9279.jpg)
 
-### La carte de gestion est animée par un ESP8266, alimenté par un module alimentation AC/DC 220V AC / 5V DC 0.6A  3W. Elle est équipée d'une interface optique réalisée par 3 opto PC817 pour assurer la liaison avec le poele.
+### La carte de gestion est animée par un ESP8266, alimentée par un module alimentation AC/DC 220V AC / 5V DC 0.6A  3W. Elle est équipée d'une interface optique réalisée par 3 optos PC817 pour assurer la liaison avec le poele.
 
 
 ![img_9283.jpg](/jolly_mec/img_9283.jpg)
